@@ -179,6 +179,12 @@ int main() {
                 }
             } while (rv > 0);
 
+            if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS) {
+                puts("reconnecting to MPD");
+                mpd_connection_free(conn);
+                mpd_connect(&conn);
+                
+            }
             if (clicks > 1) {
                 if (mpd_is_playing(conn)) {
                     puts("playing next song");
@@ -190,10 +196,10 @@ int main() {
             }
             else {
                 if (mpd_is_playing(conn)) {
-                    puts("starting playback");
+                    puts("stopping playback");
                 }
                 else {
-                    puts("stoping playback");
+                    puts("starting playback");
                 }
                 mpd_toggle_play(conn);
             }
