@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-Wall -l mpdclient
 
 all:
 	$(CC) $(CFLAGS) -o radio-controller mouse-radio-controller.c
