@@ -178,8 +178,6 @@ int main() {
                     break;
                 }
             } while (rv > 0);
-            printf("timeout: %ld.%06ld\n",
-                       timeout.tv_sec, timeout.tv_usec);
 
             if (clicks > 1) {
                 if (mpd_is_playing(conn)) {
