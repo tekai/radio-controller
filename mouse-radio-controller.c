@@ -145,9 +145,9 @@ int main() {
 
 
             do {
-                // linux modifies the timeout paramater, so lets reset it
+                // linux modifies the timeout parameter, so lets reset it
                 timeout.tv_sec = 0;
-                timeout.tv_usec = 400000; // 400k microseconds
+                timeout.tv_usec = 300000; // 300k microseconds
                 FD_ZERO(&read_set);
                 FD_SET(fd, &read_set);
 
@@ -179,6 +179,8 @@ int main() {
                 }
             } while (rv > 0);
 
+
+            mpd_run_status(conn);
             if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS) {
                 puts("reconnecting to MPD");
                 mpd_connection_free(conn);
