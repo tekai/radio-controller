@@ -1,24 +1,27 @@
 #!/bin/sh
-#
-# Startup script for the radio controller daemon
-#
-# chkconfig: – 50 50
-# description: control mpd via mouse
-# processname: collectd
-# pidfile: /opt/collectd/var/run/collectd.pid
-# command: /usr/local/bin/radio-controller
+### BEGIN INIT INFO
+# Provides:          radio-controller
+# Required-Start:    $local_fs $network
+# Required-Stop:     $local_fs
+# Should-Start:      mpd
+# Should-Stop:       mpd
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: radio-controller
+# Description:       control mpd via mouse
+### END INIT INFO
 #PID_FILE=/var/run/radio-controller
 CMD_FILE=/usr/local/bin/radio-controller
 
 case "$1" in
     start)
-        # Starts the collectd deamon
+        # Starts the deamon
         echo "Starting radio-controller"
         $CMD_FILE
         ;;
 
     stop)
-        # stops the daemon bt cat’ing the pidfile
+        # stops the daemon
         echo "stopping radio-controller"
         killall -9 radio-controller
         ;;
