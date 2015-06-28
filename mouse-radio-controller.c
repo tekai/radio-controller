@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <syslog.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/select.h>
@@ -18,7 +20,7 @@
 
 #define LOG_ERROR(x, ...) \
 {\
-    fprintf(stderr, "ERROR " x "\n", __VA_ARGS__);          \
+    syslog(LOG_ERR, "ERROR " x "\n", __VA_ARGS__);          \
 }
 
 static bool mpd_is_playing(struct mpd_connection *conn) {
@@ -39,7 +41,7 @@ static bool mpd_is_playing(struct mpd_connection *conn) {
         mpd_response_finish(conn);
     }
 
-    return playing; 
+    return playing;
 }
 
 
@@ -78,7 +80,7 @@ static int mpd_next(struct mpd_connection *conn) {
       }
       mpd_status_free(status);
 
-      if (p+1 < l) 
+      if (p+1 < l)
           mpd_run_next(conn);
       else
           mpd_run_play_pos(conn, 0);
@@ -113,19 +115,22 @@ int main() {
     struct timeval tStart;
     struct timeval tDiff;
 
+    daemon(0, 0);
+    openlog ("radio-controller", LOG_PID, LOG_DAEMON);
+
     if ((fd = open(MOUSEFILE, O_RDONLY)) == -1) {
-        perror("opening device");
+        syslog(LOG_ERR, "opening device");
         exit(EXIT_FAILURE);
     }
 
     struct mpd_connection *conn = NULL;
     if ((mpd_connect(&conn)) == -1) {
-        perror("could not connect to mpd");
+        syslog(LOG_ERR, "could not connect to mpd");
         exit(EXIT_FAILURE);
     }
-    printf("MPD is %s\n", mpd_is_playing(conn) ? "playing" : "stopped");
+    syslog(LOG_INFO, "MPD is %s\n", mpd_is_playing(conn) ? "playing" : "stopped");
 
-    puts("Waiting for input...");
+    syslog(LOG_INFO, "Waiting for input...");
     fd_set master_set;
     fd_set read_set;
     int rv;
@@ -155,11 +160,11 @@ int main() {
                 rv = select(FD_SETSIZE, &read_set, NULL, NULL, &timeout);
 
                 if (rv == -1) {
-                    perror("select");
+                    syslog(LOG_ERR, "select");
                     break;
                 }
                 else if (rv == 0) {
-                    /* puts("timeout"); */
+                    /* syslog(LOG_INFO, "timeout"); */
                     break;
                 }
 
@@ -182,26 +187,26 @@ int main() {
 
             mpd_run_status(conn);
             if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS) {
-                puts("reconnecting to MPD");
+                syslog(LOG_INFO, "reconnecting to MPD");
                 mpd_connection_free(conn);
                 mpd_connect(&conn);
-                
+
             }
             if (clicks > 1) {
                 if (mpd_is_playing(conn)) {
-                    puts("playing next song");
+                    syslog(LOG_INFO, "playing next song");
                     mpd_next(conn);
                 }
                 else {
-                    puts("MPD is not playing");
+                    syslog(LOG_INFO, "MPD is not playing");
                 }
             }
             else {
                 if (mpd_is_playing(conn)) {
-                    puts("stopping playback");
+                    syslog(LOG_INFO, "stopping playback");
                 }
                 else {
-                    puts("starting playback");
+                    syslog(LOG_INFO, "starting playback");
                 }
                 mpd_toggle_play(conn);
             }
