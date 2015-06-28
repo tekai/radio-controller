@@ -115,6 +115,8 @@ int main() {
     struct timeval tStart;
     struct timeval tDiff;
 
+    puts("Starting radio-controller as daemon");
+
     daemon(0, 0);
     openlog ("radio-controller", LOG_PID, LOG_DAEMON);
 
